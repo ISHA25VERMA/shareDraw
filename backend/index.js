@@ -12,8 +12,31 @@ const io = new Server(httpServer, {
   },
 });
 
+let roomElementsMap = new Map();
+
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
+
+  socket.on("join-room", (roomId, callback) => {
+    socket.join(roomId);
+    console.log("user joined room", roomId);
+
+    return callback({
+      status: "ok",
+      elements: roomElementsMap.get(roomId) || [],
+    });
+  });
+
+  socket.on("drawing", (data) => {
+    console.log("drawing", data);
+    const { roomId, element } = data;
+    if (roomElementsMap.has(roomId)) {
+      roomElementsMap.get(roomId).push(element);
+    } else {
+      roomElementsMap.set(roomId, [element]);
+    }
+    socket.broadcast.to(roomId).emit("drawing", data);
+  });
 });
 
 httpServer.listen(4000, () => {

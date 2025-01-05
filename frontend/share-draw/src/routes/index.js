@@ -5,4 +5,8 @@ export const routes = [
     path: "/",
     element: <Canvas />,
   },
+  {
+    path: "/:room",
+    element: <Canvas />,
+  },
 ];
