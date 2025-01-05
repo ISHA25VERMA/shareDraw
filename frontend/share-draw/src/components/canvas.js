@@ -1,9 +1,17 @@
-import React, { useLayoutEffect } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import rough from "roughjs/bundled/rough.esm";
 import { drawShape } from "./shapes";
+import { initSocket } from "./socket";
 const Canvas = () => {
   const [elements, setElements] = React.useState([]);
   const [drawing, setDrawing] = React.useState(false);
+  const socketRef = React.useRef(null);
+  useEffect(() => {
+    const init = async () => {
+      socketRef.current = await initSocket();
+    };
+    init();
+  }, []);
 
   useLayoutEffect(() => {
     const canvas = document.getElementsByClassName("drawing-board")[0];
@@ -12,7 +20,6 @@ const Canvas = () => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    console.log(elements);
     elements.forEach(({ roughElement }) => {
       roughCanvas.draw(roughElement);
     });
@@ -43,25 +50,26 @@ const Canvas = () => {
     const copyElements = [...elements];
     copyElements[copyElements.length - 1] = updatedElement;
     setElements(copyElements);
-    console.log(e.clientX, e.clientY);
   };
 
   const handleMouseUp = (e) => {
     setDrawing(false);
   };
   return (
-    // <div className="main" width={window.innerWidth} height={window.innerHeight}>
-    <canvas
-      className="drawing-board"
-      height={window.innerHeight}
-      width={window.innerWidth}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseMove={handleMouseMove}
-    >
-      Your browser does not support the HTML5 canvas tag
-    </canvas>
-    // </div>
+    <div className="main">
+      <canvas
+        className="drawing-board"
+        height={window.innerHeight}
+        width={window.innerWidth}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+      >
+        Your browser does not support the HTML5 canvas tag
+      </canvas>
+      <script src="/socket.io/socket.io.js"></script>
+      <script>{``}</script>
+    </div>
   );
 };
 
